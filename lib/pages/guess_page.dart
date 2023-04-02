@@ -14,6 +14,7 @@ class GenGame
   int upperNumber=100;
   final int answer = Random().nextInt(99)+1;
 }
+<<<<<<< HEAD
 
 class GuessPage extends StatefulWidget {
   const GuessPage({super.key});
@@ -26,6 +27,11 @@ class _GuessPage extends State<GuessPage>{
   GenGame game=GenGame();
   final TextEditingController myController = TextEditingController();
   bool _gameOver=false;
+=======
+class _GuessPage extends State<GuessPage>{
+  GenGame game=GenGame();
+  final TextEditingController myController = TextEditingController();
+>>>>>>> 258605c9ad738736533d084e2da5d210d436184c
   void _updateValue(String value)
   {
     setState(() {
@@ -34,6 +40,7 @@ class _GuessPage extends State<GuessPage>{
         iValue = int.parse(value);
       }
       catch (e) {
+<<<<<<< HEAD
         showDialog(
           context: context,
           builder: (context) {
@@ -72,6 +79,20 @@ class _GuessPage extends State<GuessPage>{
           },
         );
       }
+=======
+        debugPrint(e as String?);
+        return;
+      }
+      debugPrint("num: $iValue");
+      if (iValue < game.answer && iValue >= game.lowerNumber) {
+        game.lowerNumber = iValue;
+        debugPrint("lowerNumber updated=${game.lowerNumber}");
+      }
+      else if (iValue > game.answer && iValue <= game.upperNumber) {
+        game.upperNumber = iValue;
+        debugPrint("upperNumber updated=${game.upperNumber}");
+      }
+>>>>>>> 258605c9ad738736533d084e2da5d210d436184c
     });
   }
 
@@ -135,11 +156,18 @@ class _GuessPage extends State<GuessPage>{
                                       TextButton(
                                         onPressed: () {
                                           _updateValue(myController.text);
+<<<<<<< HEAD
                                           myController.clear();
                                         },
                                         style: TextButton.styleFrom(
                                           backgroundColor:Colors.blue,
                                           padding: const EdgeInsets.all(15.0),
+=======
+                                        },
+                                        style: TextButton.styleFrom(
+                                          backgroundColor:Colors.blue,
+                                          padding: const EdgeInsets.all(16.0),
+>>>>>>> 258605c9ad738736533d084e2da5d210d436184c
                                           textStyle: const TextStyle(fontSize: 20),
                                         ),
                                         child: const Icon(Icons.arrow_back,color:Colors.white,size:20),
@@ -150,9 +178,13 @@ class _GuessPage extends State<GuessPage>{
                           ]
                       )
                   ),
+<<<<<<< HEAD
                   Text("The Answer is ${game.answer}",style: const TextStyle(fontSize: 10)),
                   if(gameHistoryList.isNotEmpty)ShowList(gameHistoryList: gameHistoryList,height: 200),
 
+=======
+                  Text("Answer is ${game.answer}"),
+>>>>>>> 258605c9ad738736533d084e2da5d210d436184c
                 ]
             )
         )
@@ -160,6 +192,7 @@ class _GuessPage extends State<GuessPage>{
   }
 }
 
+<<<<<<< HEAD
 
 
 class ShowList extends StatelessWidget{
@@ -200,3 +233,10 @@ class ShowList extends StatelessWidget{
 }
 
 
+=======
+class GuessPage extends StatefulWidget {
+  const GuessPage({super.key});
+  @override
+  State<StatefulWidget> createState() =>_GuessPage();
+}
+>>>>>>> 258605c9ad738736533d084e2da5d210d436184c
