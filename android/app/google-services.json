@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "569491466039",
+    "project_id": "parrot-number-game",
+    "storage_bucket": "parrot-number-game.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569491466039:android:88951d0d399e66ec125cb2",
+        "android_client_info": {
+          "package_name": "com.example.parrot_number"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "569491466039-09fvq72pp0m5ha3a61em2q5pi92l1dd8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6_CWbXU0sm9tiIzBCJIvKT39fxNMCnGk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "569491466039-09fvq72pp0m5ha3a61em2q5pi92l1dd8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
