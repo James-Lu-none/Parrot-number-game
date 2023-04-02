@@ -1,15 +1,31 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:parrot_number/pages/result_page.dart';
+class GameHistory
+{
+  final int guessNumber;
+  final String statement;
+  const GameHistory(this.guessNumber,this.statement);
+}
 
 class GenGame
 {
   int lowerNumber=1;
   int upperNumber=100;
-  final answer = Random().nextInt(99)+1;
+  final int answer = Random().nextInt(99)+1;
 }
+
+class GuessPage extends StatefulWidget {
+  const GuessPage({super.key});
+  @override
+  State<StatefulWidget> createState() =>_GuessPage();
+}
+
 class _GuessPage extends State<GuessPage>{
+  List<GameHistory> gameHistoryList=[];
   GenGame game=GenGame();
   final TextEditingController myController = TextEditingController();
+  bool _gameOver=false;
   void _updateValue(String value)
   {
     setState(() {
@@ -18,17 +34,43 @@ class _GuessPage extends State<GuessPage>{
         iValue = int.parse(value);
       }
       catch (e) {
-        debugPrint(e as String?);
+        showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              content: Text("invalid input: integer parse failed"),
+            );
+          },
+        );
         return;
       }
       debugPrint("num: $iValue");
-      if (iValue < game.answer && iValue >= game.lowerNumber) {
+      if (iValue < game.answer && iValue > game.lowerNumber) {
         game.lowerNumber = iValue;
+        gameHistoryList.add(GameHistory(iValue,"lower"));
         debugPrint("lowerNumber updated=${game.lowerNumber}");
       }
-      else if (iValue > game.answer && iValue <= game.upperNumber) {
+      else if (iValue > game.answer && iValue < game.upperNumber) {
         game.upperNumber = iValue;
+        gameHistoryList.add(GameHistory(iValue,"greater"));
         debugPrint("upperNumber updated=${game.upperNumber}");
+      }
+      else if(iValue==game.answer){
+        gameHistoryList.add(GameHistory(iValue,"equal"));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context)=>ResultPage(gameHistoryList:gameHistoryList,answer: game.answer,))
+        );
+      }
+      else{
+        showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              content: Text("invalid input: out of range"),
+            );
+          },
+        );
       }
     });
   }
@@ -93,10 +135,11 @@ class _GuessPage extends State<GuessPage>{
                                       TextButton(
                                         onPressed: () {
                                           _updateValue(myController.text);
+                                          myController.clear();
                                         },
                                         style: TextButton.styleFrom(
                                           backgroundColor:Colors.blue,
-                                          padding: const EdgeInsets.all(16.0),
+                                          padding: const EdgeInsets.all(15.0),
                                           textStyle: const TextStyle(fontSize: 20),
                                         ),
                                         child: const Icon(Icons.arrow_back,color:Colors.white,size:20),
@@ -107,7 +150,9 @@ class _GuessPage extends State<GuessPage>{
                           ]
                       )
                   ),
-                  Text("Answer is ${game.answer}"),
+                  Text("The Answer is ${game.answer}",style: const TextStyle(fontSize: 10)),
+                  if(gameHistoryList.isNotEmpty)ShowList(gameHistoryList: gameHistoryList,height: 200),
+
                 ]
             )
         )
@@ -115,8 +160,43 @@ class _GuessPage extends State<GuessPage>{
   }
 }
 
-class GuessPage extends StatefulWidget {
-  const GuessPage({super.key});
+
+
+class ShowList extends StatelessWidget{
+  final List<GameHistory> gameHistoryList;
+  final double height;
+  const ShowList({super.key, required this.gameHistoryList,required this.height});
   @override
-  State<StatefulWidget> createState() =>_GuessPage();
+  Widget build(BuildContext context) {
+    return Flexible(
+      flex: 1,
+      child:
+      SizedBox(
+        height: height,
+        width: 350,
+        child:
+        ListView(
+          children:[
+            DataTable(
+              columns: const [
+                DataColumn(label: Text('Guess No.')),
+                DataColumn(label: Text('number')),
+                DataColumn(label: Text('statement'))
+              ],rows:List<DataRow>.generate(
+                gameHistoryList.length,
+                (index) => DataRow(
+                cells: [
+                  DataCell(Text('${index+1}')),
+                  DataCell(Text('${gameHistoryList[index].guessNumber}')),
+                  DataCell(Text(gameHistoryList[index].statement)),
+                ])
+              ),
+            )
+          ]
+        ),
+      ),
+    );
+  }
 }
+
+

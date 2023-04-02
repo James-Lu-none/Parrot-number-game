@@ -30,10 +30,7 @@ class HomePage extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),
                   ),
                   onPressed: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => GuessPage()),
-                    );
+                    Navigator.popAndPushNamed(context, '/guess');
                   },
                 ),
             )
