@@ -6,6 +6,14 @@ class GameHistory
   final int guessNumber;
   final String statement;
   const GameHistory(this.guessNumber,this.statement);
+
+  GameHistory.fromJson(Map<String, dynamic> json):
+    guessNumber = json['guessNumber'], statement = json['statement'];
+
+  Map<String, dynamic> toJson() => {
+    'guessNumber': guessNumber,
+    'statement': statement,
+  };
 }
 
 class GenGame
@@ -75,87 +83,93 @@ class _GuessPage extends State<GuessPage>{
     });
   }
 
+  Widget _gameTitle() {
+    return const Text(
+      'Guess a number between',
+      textAlign: TextAlign.center,
+      style: TextStyle(fontWeight: FontWeight.normal, fontSize: 20),
+    );
+  }
+  Widget _numberInterval(){
+    return Text.rich(
+      TextSpan(
+        children:<TextSpan> [//Q: statement '<TextSpan>' needed?
+          TextSpan(
+            text:'${game.lowerNumber}',style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20),
+          ),
+          const TextSpan(
+            text:' and ',
+          ),
+          TextSpan(
+            text:'${game.upperNumber}',style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20),
+          )
+        ],
+      ),
+      textAlign: TextAlign.center,
+      style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 20),
+    );
+  }
+  Widget _inputField(){
+    return TextField(
+      controller: myController,
+      textAlign: TextAlign.center,
+      decoration: const InputDecoration(
+        border: OutlineInputBorder(),
+        hintText: 'Enter a num',
+      ),
+    );
+  }
+  Widget _confirmInputButton(){
+    return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child:Stack(
+            children:[
+              TextButton(
+                onPressed: () {
+                  _updateValue(myController.text);
+                  myController.clear();
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor:Colors.blue,
+                  padding: const EdgeInsets.all(15.0),
+                  textStyle: const TextStyle(fontSize: 20),
+                ),
+                child: const Icon(Icons.arrow_back,color:Colors.white,size:20),
+              ),
+            ]
+        )
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        body:Center(
-            child:Column(
+      backgroundColor: Colors.white,
+      body:Center(
+        child:Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children:[
+            _gameTitle(),
+            _numberInterval(),
+            SizedBox(
+              height: 100,
+              width:300,
+              child:Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children:[
-                  const Text(
-                    'Guess a number between',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.normal,fontSize: 20),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children:<TextSpan> [//Q: statement '<TextSpan>' needed?
-                        TextSpan(
-                          text:'${game.lowerNumber}',style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20),
-                        ),
-                        const TextSpan(
-                          text:' and ',
-                        ),
-                        TextSpan(
-                          text:'${game.upperNumber}',style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20),
-                        )
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 20),
-                  ),
-
                   SizedBox(
-                      height: 100,
-                      width:300,
-                      child:Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children:[
-                            SizedBox(
-                              height: 50,
-                              width:200,
-                              child:
-                              TextField(
-                                controller: myController,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  hintText: 'Enter a num',
-
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-
-                            ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child:Stack(
-                                    children:[
-                                      TextButton(
-                                        onPressed: () {
-                                          _updateValue(myController.text);
-                                          myController.clear();
-                                        },
-                                        style: TextButton.styleFrom(
-                                          backgroundColor:Colors.blue,
-                                          padding: const EdgeInsets.all(15.0),
-                                          textStyle: const TextStyle(fontSize: 20),
-                                        ),
-                                        child: const Icon(Icons.arrow_back,color:Colors.white,size:20),
-                                      ),
-                                    ]
-                                )
-                            ),
-                          ]
-                      )
+                    width:200,
+                    child:_inputField()
                   ),
-                  Text("The Answer is ${game.answer}",style: const TextStyle(fontSize: 10)),
-                  if(gameHistoryList.isNotEmpty)ShowList(gameHistoryList: gameHistoryList,height: 200),
-
+                  const SizedBox(width: 10),
+                  _confirmInputButton(),
                 ]
-            )
+              )
+            ),
+            Text("The Answer is ${game.answer}",style: const TextStyle(fontSize: 10)),
+            if(gameHistoryList.isNotEmpty)ShowList(gameHistoryList: gameHistoryList,height: 200),
+          ]
         )
+      )
     );
   }
 }
