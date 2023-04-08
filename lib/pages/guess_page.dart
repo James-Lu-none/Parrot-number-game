@@ -4,7 +4,20 @@ import 'package:parrot_number/pages/result_page.dart';
 
 
 
+class Record{
+  final String name;
+  final List<GameHistory> gameHistory;
+  const Record(this.name,this.gameHistory);
 
+  Map toJson() {
+    List<Map<String,dynamic>> gameHistory = this.gameHistory.map((i) => i.toJson()).toList();
+
+    return {
+      'name': name,
+      'gameHistory': gameHistory
+    };
+  }
+}
 class GameHistory
 {
   final int guessNumber;

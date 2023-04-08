@@ -20,7 +20,7 @@ class _ResultPage extends State<ResultPage> {
   @override
   void initState() {
     super.initState();
-
+    name='';
     gameHistoryList = widget.gameHistoryList;
     answer = widget.answer;
   }
@@ -35,8 +35,10 @@ class _ResultPage extends State<ResultPage> {
         context: context,
         builder: (context)=>AlertDialog(
           title: const Text("Enter your name"),
-          content:const TextField(
-            decoration: InputDecoration(hintText: 'name here'),
+          content:TextField(
+            autofocus: true,
+            controller: userInputNameController,
+            decoration: const InputDecoration(hintText: 'name here'),
           ),
           actions: [
             TextButton(
@@ -51,15 +53,12 @@ class _ResultPage extends State<ResultPage> {
         )
     );
   }
-  Future<void> _uploadFile(String? name) async {
+  Future<void> _uploadFile() async {
     try{
       String fileTitle="${deviceName}_${DateTime.now().millisecondsSinceEpoch}";
-      String json=jsonEncode(gameHistoryList);
-      List<dynamic> jsonMap = jsonDecode(json);
-      //jsonMap['name']=name;
-      //json=jsonEncode(jsonMap);
+      Record record=Record(name, gameHistoryList);
+      String json=jsonEncode(record);
       debugPrint(json);
-      debugPrint(jsonMap.toString());
       File f=await createLocalJsonFile('$fileTitle.json', 'lists', json);//save
       uploadFile(f,gameHistoryRef,'$fileTitle.json');//upload
     }
@@ -71,7 +70,10 @@ class _ResultPage extends State<ResultPage> {
     return ElevatedButton.icon(
       onPressed: () async{
         final inputName = await _openEnterNameDialog();
-        _uploadFile(inputName);
+        setState((){
+          name=inputName!;
+        });
+        _uploadFile();
       },
       style: ElevatedButton.styleFrom(
         backgroundColor:Colors.orange,
