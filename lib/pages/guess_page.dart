@@ -1,6 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:parrot_number/pages/result_page.dart';
+
+
+
+
 class GameHistory
 {
   final int guessNumber;
@@ -14,6 +18,7 @@ class GameHistory
     'guessNumber': guessNumber,
     'statement': statement,
   };
+
 }
 
 class GenGame
@@ -32,10 +37,13 @@ class GuessPage extends StatefulWidget {
 class _GuessPage extends State<GuessPage>{
   List<GameHistory> gameHistoryList=[];
   GenGame game=GenGame();
-  final TextEditingController myController = TextEditingController();
-  bool _gameOver=false;
-  void _updateValue(String value)
-  {
+  TextEditingController userInputNumController=TextEditingController();
+  @override void initState() {
+    // TODO: implement initState
+    super.initState();
+    userInputNumController = TextEditingController();
+  }
+  void _updateValue(String value){
     setState(() {
       int iValue;
       try {
@@ -82,7 +90,6 @@ class _GuessPage extends State<GuessPage>{
       }
     });
   }
-
   Widget _gameTitle() {
     return const Text(
       'Guess a number between',
@@ -111,7 +118,7 @@ class _GuessPage extends State<GuessPage>{
   }
   Widget _inputField(){
     return TextField(
-      controller: myController,
+      controller: userInputNumController,
       textAlign: TextAlign.center,
       decoration: const InputDecoration(
         border: OutlineInputBorder(),
@@ -126,8 +133,8 @@ class _GuessPage extends State<GuessPage>{
             children:[
               TextButton(
                 onPressed: () {
-                  _updateValue(myController.text);
-                  myController.clear();
+                  _updateValue(userInputNumController.text);
+                  userInputNumController.clear();
                 },
                 style: TextButton.styleFrom(
                   backgroundColor:Colors.blue,
@@ -172,6 +179,7 @@ class _GuessPage extends State<GuessPage>{
       )
     );
   }
+
 }
 
 

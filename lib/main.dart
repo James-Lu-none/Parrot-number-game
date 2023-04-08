@@ -5,9 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:parrot_number/pages/guess_page.dart';
 import 'package:parrot_number/pages/home_page.dart';
 import 'Firebase/Firebase_storage.dart';
+import 'package:intl/intl.dart';
+
 
 Future<void> main() async {
+  debugPrint("time: ${deviceName}_${DateTime.now().millisecondsSinceEpoch}");
   firebaseSetup();
+  /*
+  DateTime time=DateTime.now();
+  String formattedDate = DateFormat('yyyyMMdd_kkmmss').format(time);
+  debugPrint(formattedDate);
+
   Directory('${await localPath}/lists').createSync();
   const List<GameHistory> testData=[
     GameHistory(23,"lower"),
@@ -16,10 +24,17 @@ Future<void> main() async {
     GameHistory(84,"greater"),
     GameHistory(50,"equal"),
   ];
-  String json=jsonEncode(testData);
-  debugPrint(json);
-  File f=await createLocalJsonFile('test1.json', 'lists', json);
-  uploadFile(f,gameHistoryRef,'test1.json');
+
+  String json=jsonEncode(testData);//encode
+  File f=await createLocalJsonFile('$formattedDate.json', 'lists', json);//save
+  uploadFile(f,gameHistoryRef,'$formattedDate.json');//upload
+
+  final result=await dictList(gameHistoryRef);//find all dictiories
+  debugPrint("$result");
+
+  final file2 = File('${await localPath}/1.json');
+  final a=await downloadToFile(result[0], file2);
+*/
   runApp(const ParrotNumberApp());
 }
 
