@@ -6,14 +6,16 @@ import 'package:parrot_number/pages/result_page.dart';
 
 class Record{
   final String name;
+  final String time;
   final List<GameHistory> gameHistory;
-  const Record(this.name,this.gameHistory);
+  const Record(this.name,this.time,this.gameHistory);
 
   Map toJson() {
     List<Map<String,dynamic>> gameHistory = this.gameHistory.map((i) => i.toJson()).toList();
 
     return {
       'name': name,
+      'time': time,
       'gameHistory': gameHistory
     };
   }
@@ -192,7 +194,6 @@ class _GuessPage extends State<GuessPage>{
       )
     );
   }
-
 }
 
 

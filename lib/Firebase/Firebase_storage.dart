@@ -4,20 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import '../pages/guess_page.dart';
 
-get deviceName => Platform.localHostname; // Get the name of the device
 
-final storageRef = FirebaseStorage.instanceFor(bucket: 'gs://parrot-number-game.appspot.com/').ref();//bucket is for advanced locating
+get deviceName => Platform.localHostname; // Get the name of the device
+final storage = FirebaseStorage.instanceFor(bucket: 'gs://parrot-number-game.appspot.com/');
+final storageRef = storage.ref();//bucket is for advanced locating
 final gameHistoryRef=storageRef.child("gameHistory/");
-Future<void> firebaseSetup() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  await FirebaseAuth.instance.signInAnonymously();
-}
 
 Future<String> get localPath async {
   final directory = await getApplicationDocumentsDirectory();
@@ -29,15 +23,12 @@ Future<File> createLocalJsonFile(String fileName,String location, String json) a
   return file.writeAsString(json);
 }
 
-Future<void> uploadFile(File file,Reference ref,String fileName) async {
-  try {
-    await ref.child(fileName).putFile(file);
-  } catch (e) {
-    debugPrint("error: $e");
-  }
+Future<TaskSnapshot> uploadFile(File file,Reference ref,String fileName) async {
+  return await ref.child(fileName).putFile(file);
 }
-Future<TaskSnapshot> downloadToFile(Reference ref,File file) async{
-  return await ref.writeToFile(file);//write to local file
+Future<TaskSnapshot> downloadToFile(String ref,File file) async{
+  final dRef=storageRef.child(ref);
+  return await dRef.writeToFile(file);//write to local file
   //taskSnapshot.state:
   // TaskState.running,
   // TaskState.paused,
@@ -55,5 +46,5 @@ Future<List<Reference>> dictList(Reference ref) async{
   {
     return [];
   }
-
 }
+
