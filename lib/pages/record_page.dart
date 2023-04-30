@@ -43,7 +43,13 @@ Future<List<Record>> loadData() async{
           break;
       }
     });
-    list.add(Record.fromJson(jsonDecode(await tempFile.readAsString())));
+    try{
+      list.add(Record.fromJson(jsonDecode(await tempFile.readAsString())));
+    }
+    catch(e)
+    {
+      print(e);
+    }
   }
   debugPrint("${list.length} records loaded");
   return list;
