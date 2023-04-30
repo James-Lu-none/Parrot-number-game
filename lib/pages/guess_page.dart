@@ -5,10 +5,25 @@ import 'package:parrot_number/pages/result_page.dart';
 
 
 class Record{
-  final String name;
-  final String time;
-  final List<GameHistory> gameHistory;
-  const Record(this.name,this.time,this.gameHistory);
+  String name;
+  String time;
+  List<GameHistory> gameHistory;
+  Record(this.name,this.time, [this.gameHistory]);
+
+  factory Record.fromJson(dynamic json){
+    if(json['gamHistory']!=null)
+    {
+      List gameHistoryObj =json['gameHistory'];
+      List<GameHistory> gameHistories = gameHistoryObj.map((gameHistoryJson) => GameHistory.fromJson(gameHistoryJson)).toList();
+
+      return Record(json['name'] as String, json['time'] as String, gameHistories);
+    }
+    else
+    {
+      return Record(json['name'] as String, json['time'] as String);
+    }
+  }
+
 
   Map toJson() {
     List<Map<String,dynamic>> gameHistory = this.gameHistory.map((i) => i.toJson()).toList();
@@ -19,21 +34,33 @@ class Record{
       'gameHistory': gameHistory
     };
   }
+
+  @override
+  String toString() {
+    return '{ $name, $time, $gameHistory }';
+  }
 }
 class GameHistory
 {
   final int guessNumber;
   final String statement;
+
   const GameHistory(this.guessNumber,this.statement);
 
-  GameHistory.fromJson(Map<String, dynamic> json):
-    guessNumber = json['guessNumber'], statement = json['statement'];
+  factory GameHistory.fromJson(dynamic json){
+    return GameHistory(json['guessNumber'] as int, json['statement'] as String);
+  }
+
 
   Map<String, dynamic> toJson() => {
     'guessNumber': guessNumber,
     'statement': statement,
   };
 
+  @override
+  String toString() {
+    return '{ $guessNumber, $statement }';
+  }
 }
 
 class GenGame
