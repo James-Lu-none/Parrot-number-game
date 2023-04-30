@@ -64,10 +64,8 @@ class _ResultPage extends State<ResultPage> {
     Record record=Record(name,formattedTime, gameHistoryList);
     String json=jsonEncode(record);
     debugPrint(json);
-    File tempFile=await createLocalJsonFile('$fileTitle.json', 'lists', json);//save
+    File tempFile=await createLocalJsonFile('uploadFile.json', 'lists', json);//save
     final uploadTask = gameHistoryRef.child('$fileTitle.json').putFile(tempFile);
-    debugPrint("start uploading");
-    tempFile.delete();//optional
     uploadTask.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
       switch (taskSnapshot.state) {
         case TaskState.running:
@@ -128,25 +126,30 @@ class _ResultPage extends State<ResultPage> {
   Widget _uploadButton(){
     return ElevatedButton.icon(
       onPressed: () async{
-        final inputName = await _openEnterNameDialog();
-        setState((){
-          name=inputName!;
-          uploaded=true;
-        });
-        _uploadFile();
+        if(!uploaded){
+          final inputName = await _openEnterNameDialog();
+          setState((){
+            name=inputName!;
+            uploaded=true;
+          });
+          _uploadFile();
+        }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor:Colors.orange,
+        backgroundColor:(!uploaded)?Colors.orange:Colors.grey,
         textStyle: const TextStyle(fontSize: 20),
       ),
-      icon: const Icon(Icons.upload,color:Colors.white,size:20),
-      label: const Text("upload your record"),
+      icon:(!uploaded)? const Icon(Icons.upload,color:Colors.white,size:20):const Icon(Icons.done,color:Colors.white,size:20),
+      label:(!uploaded)? const Text("upload your record"):const Text("uploaded"),
     );
   }
   Widget _refreshButton(){
     return ElevatedButton.icon(
       onPressed: () {
-        Navigator.popAndPushNamed(context, '/guess');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GuessPage(loadUnfinishedGame: false)),
+        );
       },
       style: ElevatedButton.styleFrom(
         backgroundColor:Colors.green,
@@ -186,9 +189,7 @@ class _ResultPage extends State<ResultPage> {
             ShowList(gameHistoryList: gameHistoryList,height:350),
 
             _homeButton(),
-            const SizedBox(height: 10,),
-            if(!uploaded)_uploadButton(),
-            const SizedBox(height: 10,),
+            _uploadButton(),
             _refreshButton(),
 
           ],

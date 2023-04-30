@@ -1,7 +1,10 @@
-import 'dart:ffi';
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:parrot_number/pages/guess_page.dart';
+
+import '../Firebase/Firebase_storage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,25 +14,70 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage>{
+
+  Widget _startButton(){
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+         backgroundColor: Colors.blue,
+      ),
+      onPressed: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GuessPage(loadUnfinishedGame: false,)),
+        );
+      },
+      child: const Text(
+        "start",
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),
+      ),
+    );
+  }
+  Future<void> _checkUnfinishedGame()async {
+    bool unfinishedGameFileExist=await File('${await localPath}/unfinishedGame/unfinishedGame.json').exists();
+    setState(() {
+      if (unfinishedGameFileExist){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GuessPage(loadUnfinishedGame: true)),
+        );
+      }
+      else{
+        showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              content: Text("No unfinished game file"),
+            );
+          },
+        );
+      }
+    });
+  }
   Widget _resumeButton(){
     return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.green,
+      ),
       child: const Text(
         "resume",
 
         textAlign: TextAlign.center,
         style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),
       ),
-      onPressed: (){
-        ///TODO:load unfinished game here
-        //Navigator.push(
-        //    context,
-        //    MaterialPageRoute(builder: (context)=>guessPage(gameHistoryList:gameHistoryList,answer: game.answer,))
-        //);
+      onPressed: ()  {
+        _checkUnfinishedGame();
       },
     );
   }
   Widget _recordButton(){
     return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.orange,
+      ),
       child: const Text(
         "Leaderboard",
         textAlign: TextAlign.center,
@@ -40,49 +88,31 @@ class _HomePage extends State<HomePage>{
       },
     );
   }
-  Widget _startButton(){
-    return ElevatedButton(
-      child: const Text(
-        "start",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),
-      ),
-      onPressed: (){
-        Navigator.popAndPushNamed(context, '/guess');
-      },
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        body:Center(
-            child:Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body:Center(
+        child:Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children:[
+            const Image(image:AssetImage("assets/images/flutter.png")),
+            const Text('FlutterApp1 - ParrotNumber'),
+            SizedBox(
+              width: 300,
+              child:ListBody(
+                mainAxis: Axis.vertical,
                 children:[
-                  const Image(image:AssetImage("assets/images/flutter.png")),
-                  const Text('FlutterApp1 - ParrotNumber'),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                    width: 100,
-                    height: 50,
-                    child:
-                    _startButton(),
-                  ),
-                  const SizedBox(height:10),
-                  SizedBox(
-                      width: 200,
-                      height: 50,
-                      child:
-                      _recordButton(),
-                  ),
+                  _startButton(),
                   _resumeButton(),
+                  _recordButton(),
                 ]
+              ),
             )
+          ]
         )
+      )
     );
   }
 

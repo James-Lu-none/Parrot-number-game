@@ -17,10 +17,12 @@ void main() async {
   String local= await localPath;
   String directoryPath = '$local/lists';
   String tempRecordPath = '$local/tempRecord';
-  //Directory(directoryPath).delete(recursive: true);
+  String unfinishedGamePath = '$local/unfinishedGame';
+
   Directory(directoryPath).createSync();
   Directory(tempRecordPath).createSync();
-  debugPrint("${directoryPath}");
+  Directory(unfinishedGamePath).createSync();
+  //Directory(directoryPath).delete(recursive: true);
 
   runApp(const ParrotNumberApp());
 }
@@ -35,7 +37,6 @@ class ParrotNumberApp extends StatelessWidget {
         initialRoute: '/',
         routes:{
           '/': (context) =>const HomePage(),
-          '/guess' : (context) =>const GuessPage(),
           '/record' : (context) =>const RecordPage(),
         },
       );

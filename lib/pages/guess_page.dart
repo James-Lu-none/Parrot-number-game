@@ -1,33 +1,53 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:parrot_number/pages/result_page.dart';
 
+import '../Firebase/Firebase_storage.dart';
 
 
+class UnfinishedGame{
+  final GenGame game;
+  List<GameHistory> gameHistory=[];//??? List<GameHistory> gameHistory;
+  UnfinishedGame(this.game,this.gameHistory);
+
+  factory UnfinishedGame.fromJson(dynamic json){
+    List gameHistoryObj =json['gameHistory'];
+    List<GameHistory> gameHistories = gameHistoryObj.map((gameHistoryJson) => GameHistory.fromJson(gameHistoryJson)).toList();
+    return UnfinishedGame(GenGame.fromJson(json['game']), gameHistories);
+  }
+
+  Map toJson() {
+    List<Map<String,dynamic>> gameHistory = this.gameHistory.map((i) => i.toJson()).toList();
+    return {
+      'game': game,
+      'gameHistory': gameHistory
+    };
+  }
+
+  @override
+  String toString() {
+    return '{ $game, $gameHistory }';
+  }
+}
 class Record{
-  String name;
-  String time;
-  List<GameHistory> gameHistory;
-  Record(this.name,this.time, [this.gameHistory]);
+  final String name;
+  final String time;
+  List<GameHistory> gameHistory=[];//??? final List<GameHistory> gameHistory;
+  Record(this.name,this.time, this.gameHistory);
 
   factory Record.fromJson(dynamic json){
-    if(json['gamHistory']!=null)
-    {
       List gameHistoryObj =json['gameHistory'];
       List<GameHistory> gameHistories = gameHistoryObj.map((gameHistoryJson) => GameHistory.fromJson(gameHistoryJson)).toList();
 
       return Record(json['name'] as String, json['time'] as String, gameHistories);
-    }
-    else
-    {
-      return Record(json['name'] as String, json['time'] as String);
-    }
   }
 
 
   Map toJson() {
     List<Map<String,dynamic>> gameHistory = this.gameHistory.map((i) => i.toJson()).toList();
-
     return {
       'name': name,
       'time': time,
@@ -42,10 +62,10 @@ class Record{
 }
 class GameHistory
 {
-  final int guessNumber;
-  final String statement;
+   int guessNumber;
+   String statement;
 
-  const GameHistory(this.guessNumber,this.statement);
+    GameHistory(this.guessNumber,this.statement);
 
   factory GameHistory.fromJson(dynamic json){
     return GameHistory(json['guessNumber'] as int, json['statement'] as String);
@@ -65,24 +85,40 @@ class GameHistory
 
 class GenGame
 {
-  int lowerNumber=1;
-  int upperNumber=100;
-  final int answer = Random().nextInt(99)+1;
+  int lowerNumber;
+  int upperNumber;
+  final int answer;
+  GenGame(this.lowerNumber,this.upperNumber,this.answer);
+
+  factory GenGame.fromJson(dynamic json){
+    return GenGame(json['lowerNumber'] as int,json['upperNumber'] as int,json['answer'] as int);
+  }
+  Map<String, dynamic> toJson() => {
+    'lowerNumber': lowerNumber,
+    'upperNumber': upperNumber,
+    'answer': answer,
+  };
+  @override
+  String toString() {
+    return '{ $lowerNumber, $upperNumber, $answer  }';
+  }
 }
 
 class GuessPage extends StatefulWidget {
-  const GuessPage({super.key});
+  final bool loadUnfinishedGame;
+  const GuessPage({super.key,required this.loadUnfinishedGame});
   @override
   State<StatefulWidget> createState() =>_GuessPage();
 }
 
 class _GuessPage extends State<GuessPage>{
   List<GameHistory> gameHistoryList=[];
-  GenGame game=GenGame();
+  GenGame game=GenGame(1,100,Random().nextInt(99)+1);
   TextEditingController userInputNumController=TextEditingController();
-  @override void initState() {
-    // TODO: implement initState
+  @override
+  void initState(){
     super.initState();
+    if(widget.loadUnfinishedGame) _loadUnfinishedGame();
     userInputNumController = TextEditingController();
   }
   void _updateValue(String value){
@@ -115,9 +151,10 @@ class _GuessPage extends State<GuessPage>{
       }
       else if(iValue==game.answer){
         gameHistoryList.add(GameHistory(iValue,"equal"));
+        _gameOver();
         Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context)=>ResultPage(gameHistoryList:gameHistoryList,answer: game.answer,))
+            context,
+            MaterialPageRoute(builder: (context)=>ResultPage(gameHistoryList:gameHistoryList,answer: game.answer,))
         );
       }
       else{
@@ -189,6 +226,39 @@ class _GuessPage extends State<GuessPage>{
         )
     );
   }
+  Widget _returnButton(){
+    return ElevatedButton.icon(
+      onPressed: (){
+        _saveUnfinishedGame();
+        Navigator.popAndPushNamed(context, '/');
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor:Colors.blue,
+        textStyle: const TextStyle(fontSize: 20),
+      ),
+      icon: const Icon(Icons.arrow_back_outlined,color:Colors.white,size:20),
+      label: const Text("return"),
+    );
+  }
+  Future<void> _saveUnfinishedGame() async {
+    UnfinishedGame unfinishedGame=UnfinishedGame(game,gameHistoryList);
+    String json=jsonEncode(unfinishedGame);
+    await createLocalJsonFile('unfinishedGame.json', 'unfinishedGame', json);
+    debugPrint("file saved");
+  }
+  Future<void> _loadUnfinishedGame() async{
+    //no unfinished game file error handling
+    final tempFile = File('${await localPath}/unfinishedGame/unfinishedGame.json');
+    final unfinishedGame = UnfinishedGame.fromJson(jsonDecode(await tempFile.readAsString()));
+    setState((){
+      game = unfinishedGame.game;
+      gameHistoryList = unfinishedGame.gameHistory;
+    });
+  }
+  Future<void> _gameOver()async {
+    bool unfinishedGameFileExist=await File('${await localPath}/unfinishedGame/unfinishedGame.json').exists();
+    if(unfinishedGameFileExist)File('${await localPath}/unfinishedGame/unfinishedGame.json').delete();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -214,6 +284,7 @@ class _GuessPage extends State<GuessPage>{
                 ]
               )
             ),
+            _returnButton(),
             Text("The Answer is ${game.answer}",style: const TextStyle(fontSize: 10)),
             if(gameHistoryList.isNotEmpty)ShowList(gameHistoryList: gameHistoryList,height: 200),
           ]
@@ -222,6 +293,7 @@ class _GuessPage extends State<GuessPage>{
     );
   }
 }
+
 
 
 
