@@ -11,8 +11,13 @@ import '../Firebase/Firebase_storage.dart';
 class UnfinishedGame{
   final GenGame game;
   List<GameHistory> gameHistory=[];//??? List<GameHistory> gameHistory;
-  UnfinishedGame(this.game,this.gameHistory);
 
+  factory UnfinishedGame(game,gameHistory){
+    final unfinishedGame=UnfinishedGame._internal(game, gameHistory);
+    return unfinishedGame;
+  }
+  UnfinishedGame._internal(this.game,this.gameHistory);
+  
   factory UnfinishedGame.fromJson(dynamic json){
     List gameHistoryObj =json['gameHistory'];
     List<GameHistory> gameHistories = gameHistoryObj.map((gameHistoryJson) => GameHistory.fromJson(gameHistoryJson)).toList();
@@ -62,10 +67,10 @@ class Record{
 }
 class GameHistory
 {
-   int guessNumber;
-   String statement;
+  int guessNumber;
+  String statement;
 
-    GameHistory(this.guessNumber,this.statement);
+  GameHistory(this.guessNumber,this.statement);
 
   factory GameHistory.fromJson(dynamic json){
     return GameHistory(json['guessNumber'] as int, json['statement'] as String);
